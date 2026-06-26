@@ -94,43 +94,30 @@ html.custom-cursor [role="button"] {
   position: fixed;
   top: 0;
   left: 0;
-  width: 24px;
-  height: 32px;
-  border-radius: 0;
-  background: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23FD5F8A'/%3E%3Cstop offset='100%25' stop-color='%233EB8FD'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M3 3 L3 22 L7 19 L11 28 L14 26 L9.5 17.5 L22 16 L22 13 Z' fill='url(%23g)' stroke='white' stroke-width='0.6' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--hh-gradient);
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
-  transition: width 0.25s, height 0.25s, box-shadow 0.25s;
+  transition: width 0.2s, height 0.2s, box-shadow 0.2s;
 }
 .cursor-dot.hover {
-  width: 32px;
-  height: 38px;
-  filter: drop-shadow(0 0 8px rgba(253, 95, 138, 0.6))
-          drop-shadow(0 0 16px rgba(62, 184, 253, 0.35));
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 0 14px #fd5f8a80, 0 0 28px #3eb8fd4d;
 }
-.cursor-ring {
+
+.cursor-trail {
   position: fixed;
   top: 0;
   left: 0;
-  width: 32px;
-  height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--hh-hina);
+  background: var(--hh-gradient);
   pointer-events: none;
-  z-index: 99998;
+  z-index: 99990;
   transform: translate(-50%, -50%);
-  opacity: 0.5;
-  transition: width 0.25s, height 0.25s, border-color 0.25s, opacity 0.25s;
-}
-.cursor-ring.hover {
-  width: 44px;
-  height: 44px;
-  border-color: var(--hh-hime);
-  opacity: 0.8;
 }
 
 /* ===== リセット ===== */

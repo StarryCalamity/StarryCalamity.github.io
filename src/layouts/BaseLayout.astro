@@ -43,7 +43,10 @@ const pageTitle = description ? `${title} — ${description}` : title;
   <body>
     <!-- HimeHina 自定义光标 -->
     <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
-    <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
+    <div class="cursor-trail" id="trail-1" aria-hidden="true"></div>
+    <div class="cursor-trail" id="trail-2" aria-hidden="true"></div>
+    <div class="cursor-trail" id="trail-3" aria-hidden="true"></div>
+    <div class="cursor-trail" id="trail-4" aria-hidden="true"></div>
 
     <!-- 暗色模式切换按钮 -->
     <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">
@@ -130,15 +133,23 @@ const pageTitle = description ? `${title} — ${description}` : title;
         if ("ontouchstart" in window) return;
 
         var dot = document.getElementById("cursor-dot");
-        var ring = document.getElementById("cursor-ring");
-        if (!dot || !ring) return;
+        var trails = [
+          document.getElementById("trail-1"),
+          document.getElementById("trail-2"),
+          document.getElementById("trail-3"),
+          document.getElementById("trail-4")
+        ];
+        if (!dot || !trails[0]) return;
 
         document.documentElement.classList.add("custom-cursor");
 
         var mouseX = window.innerWidth / 2;
         var mouseY = window.innerHeight / 2;
         var dotX = mouseX, dotY = mouseY;
-        var ringX = mouseX, ringY = mouseY;
+
+        // 每个拖尾的当前位置
+        var tx = [mouseX, mouseX, mouseX, mouseX];
+        var ty = [mouseY, mouseY, mouseY, mouseY];
 
         window.addEventListener("mousemove", function (e) {
           mouseX = e.clientX;
@@ -147,26 +158,35 @@ const pageTitle = description ? `${title} — ${description}` : title;
 
         var clicks = "a, button, input, textarea, [role=button], .theme-toggle, .post-card, .project-card, .tag";
         document.addEventListener("mouseover", function (e) {
-          if (e.target.closest(clicks)) {
-            dot.classList.add("hover");
-            ring.classList.add("hover");
-          }
+          if (e.target.closest(clicks)) dot.classList.add("hover");
         });
         document.addEventListener("mouseout", function (e) {
-          if (e.target.closest(clicks)) {
-            dot.classList.remove("hover");
-            ring.classList.remove("hover");
-          }
+          if (e.target.closest(clicks)) dot.classList.remove("hover");
         });
 
+        // 拖尾参数: 每个点跟随前一个点(或鼠标)的延迟系数
+        var lag = [0.12, 0.09, 0.06, 0.04];
+        var size = [7, 5, 3.5, 2.5];
+
         function tick() {
+          // 主光标快速跟随
           dotX += (mouseX - dotX) * 0.35;
           dotY += (mouseY - dotY) * 0.35;
-          dot.style.transform = "translate(" + (dotX - 2) + "px, " + (dotY - 2) + "px)";
+          dot.style.transform = "translate(" + (dotX - 5) + "px, " + (dotY - 5) + "px)";
 
-          ringX += (mouseX - ringX) * 0.15;
-          ringY += (mouseY - ringY) * 0.15;
-          ring.style.transform = "translate(" + (ringX - 16) + "px, " + (ringY - 16) + "px)";
+          // 拖尾依次跟随
+          var prevX = dotX, prevY = dotY;
+          for (var i = 0; i < 4; i++) {
+            tx[i] += (prevX - tx[i]) * lag[i];
+            ty[i] += (prevY - ty[i]) * lag[i];
+            var s = size[i];
+            trails[i].style.transform = "translate(" + (tx[i] - s/2) + "px, " + (ty[i] - s/2) + "px)";
+            trails[i].style.width = s + "px";
+            trails[i].style.height = s + "px";
+            trails[i].style.opacity = 0.7 - i * 0.15;
+            prevX = tx[i];
+            prevY = ty[i];
+          }
 
           requestAnimationFrame(tick);
         }
