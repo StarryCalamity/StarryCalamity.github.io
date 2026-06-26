@@ -101,12 +101,13 @@ html.custom-cursor [role="button"] {
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(253,95,138,0.55), 0 0 14px rgba(62,184,253,0.25);
   transition: width 0.2s, height 0.2s, box-shadow 0.2s;
 }
 .cursor-dot.hover {
   width: 20px;
   height: 20px;
-  box-shadow: 0 0 14px #fd5f8a80, 0 0 28px #3eb8fd4d;
+  box-shadow: 0 0 18px rgba(253,95,138,0.7), 0 0 36px rgba(62,184,253,0.4), 0 0 56px rgba(253,95,138,0.2);
 }
 
 .cursor-trail {
@@ -118,6 +119,7 @@ html.custom-cursor [role="button"] {
   pointer-events: none;
   z-index: 99990;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(253,95,138,0.35), 0 0 8px rgba(62,184,253,0.15);
 }
 
 /* ===== リセット ===== */
