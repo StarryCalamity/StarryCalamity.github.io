@@ -1,0 +1,457 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="编辑器">
+  <style>
+    .editor-wrapper { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Settings panel */
+    .settings-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--kogane);
+      cursor: pointer;
+      background: none;
+      border: none;
+      letter-spacing: 0.03em;
+      padding: 0;
+    }
+    .settings-toggle:hover { color: var(--shu); }
+    .settings-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-top: 0.3rem;
+    }
+    .settings-panel.open { display: block; }
+    .settings-panel .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 1rem;
+    }
+    .settings-panel label {
+      font-size: 0.78rem;
+      color: var(--kogane);
+      letter-spacing: 0.03em;
+    }
+    .settings-panel input {
+      width: 100%;
+      padding: 0.35em 0.5em;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.85rem;
+      background: #fff;
+      color: var(--sumi);
+    }
+    .settings-panel input:focus { outline: none; border-color: var(--shu); }
+    .settings-panel .hint {
+      font-size: 0.7rem;
+      color: var(--sakura);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    /* Meta fields */
+    .meta-fields {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 0.6rem 1rem;
+    }
+    .meta-fields label {
+      font-size: 0.82rem;
+      color: var(--kogane);
+      letter-spacing: 0.03em;
+    }
+    .meta-fields input {
+      width: 100%;
+      padding: 0.4em 0.6em;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      background: #fff;
+      color: var(--sumi);
+    }
+    .meta-fields input:focus { outline: none; border-color: var(--shu); }
+
+    @media (max-width: 700px) {
+      .meta-fields { grid-template-columns: 1fr; }
+      .settings-panel .row { grid-template-columns: 1fr; }
+    }
+
+    /* Panes */
+    .panes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      min-height: 55vh;
+    }
+    .pane-label {
+      font-size: 0.78rem;
+      color: var(--kogane);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.3rem;
+    }
+    .editor-pane textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 50vh;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      background: #fff;
+      color: var(--sumi);
+      resize: vertical;
+    }
+    .editor-pane textarea:focus { outline: none; border-color: var(--shu); }
+    .preview-pane {
+      padding: 0.8rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow-y: auto;
+      min-height: 50vh;
+    }
+    .preview-pane .placeholder {
+      color: var(--sakura);
+      text-align: center;
+      padding-top: 3rem;
+      font-size: 0.9rem;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      padding: 0.45em 1.2em;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: var(--sumi);
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.2s;
+    }
+    .toolbar button:hover { border-color: var(--shu); color: var(--shu); }
+    .toolbar button.primary {
+      background: var(--shu);
+      color: #fff;
+      border-color: var(--shu);
+    }
+    .toolbar button.primary:hover { background: var(--shu-light); }
+    .toolbar button.publish {
+      background: #2C2416;
+      color: #F5F0E8;
+      border-color: #2C2416;
+    }
+    .toolbar button.publish:hover { background: #5C5040; }
+    .toolbar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.5em 1.5em;
+      background: var(--sumi);
+      color: var(--washi);
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+    .toast.error { background: var(--shu); }
+
+    @media (max-width: 700px) {
+      .panes { grid-template-columns: 1fr; }
+      .meta-fields { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <div class="editor-wrapper">
+    <!-- Settings -->
+    <div>
+      <button class="settings-toggle" id="settings-toggle" type="button">
+        <span id="settings-icon">⚙</span> GitHub 设置
+      </button>
+      <div class="settings-panel" id="settings-panel">
+        <div class="row">
+          <div>
+            <label>GitHub 用户名</label>
+            <input type="text" id="gh-owner" placeholder="你的 GitHub 用户名" />
+          </div>
+          <div>
+            <label>仓库名</label>
+            <input type="text" id="gh-repo" placeholder="blog" />
+          </div>
+          <div>
+            <label>分支</label>
+            <input type="text" id="gh-branch" placeholder="main 或 master" />
+          </div>
+          <div>
+            <label>Personal Access Token</label>
+            <input type="password" id="gh-token" placeholder="ghp_xxxx..." />
+          </div>
+        </div>
+        <div class="hint">
+          需要 GitHub Personal Access Token（经典版），权限勾选 <b>repo</b>。
+          <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--shu);">点此创建 →</a>
+          令牌只在你的浏览器 localStorage 里保存，不会上传到任何服务器。
+        </div>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="meta-fields">
+      <div>
+        <label>标题</label>
+        <input type="text" id="fm-title" placeholder="文章标题" />
+      </div>
+      <div>
+        <label>日期</label>
+        <input type="date" id="fm-date" />
+      </div>
+      <div>
+        <label>文件名</label>
+        <input type="text" id="fm-slug" placeholder="my-post" />
+      </div>
+      <div>
+        <label>描述</label>
+        <input type="text" id="fm-desc" placeholder="简短描述（可选）" />
+      </div>
+      <div>
+        <label>标签</label>
+        <input type="text" id="fm-tags" placeholder="用逗号分隔，如：Unity, 游戏开发" />
+      </div>
+      <div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button type="button" id="btn-draft">读取草稿</button>
+      <button type="button" id="btn-clear">清空</button>
+      <button type="button" id="btn-copy">复制全文</button>
+      <button type="button" id="btn-download" class="primary">下载 .md</button>
+      <button type="button" id="btn-publish" class="publish">发布到 GitHub</button>
+    </div>
+
+    <!-- Editor + Preview -->
+    <div class="panes">
+      <div class="editor-pane">
+        <div class="pane-label">编辑</div>
+        <textarea id="editor" placeholder="在这里写 Markdown..."></textarea>
+      </div>
+      <div>
+        <div class="pane-label">预览</div>
+        <div class="preview-pane" id="preview">
+          <div class="placeholder">在左边写 Markdown，这里实时预览</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { marked } from "https://cdn.jsdelivr.net/npm/marked@15/lib/marked.esm.js";
+    marked.setOptions({ breaks: true, gfm: true });
+
+    const $ = (id) => document.getElementById(id);
+    const editor = $("editor");
+    const preview = $("preview");
+    const toast = $("toast");
+    const [fmTitle, fmDate, fmSlug, fmDesc, fmTags] =
+      ["fm-title","fm-date","fm-slug","fm-desc","fm-tags"].map($);
+
+    // ---- Defaults ----
+    if (!fmDate.value) fmDate.value = new Date().toISOString().slice(0, 10);
+
+    // ---- Settings panel ----
+    $("settings-toggle").onclick = () => $("settings-panel").classList.toggle("open");
+    ["gh-owner","gh-repo","gh-branch","gh-token"].forEach(id => {
+      const saved = localStorage.getItem(`blog-${id}`);
+      if (saved) $(id).value = saved;
+      $(id).addEventListener("input", () => localStorage.setItem(`blog-${id}`, $(id).value));
+    });
+
+    // ---- Live preview ----
+    editor.addEventListener("input", () => {
+      const v = editor.value.trim();
+      preview.innerHTML = v ? marked.parse(v) : '<div class="placeholder">在左边写 Markdown，这里实时预览</div>';
+      autoSave();
+    });
+
+    // ---- Slug generation ----
+    fmTitle.addEventListener("input", () => {
+      if (!fmSlug.dataset.manual) {
+        fmSlug.value = fmTitle.value.replace(/[/\\?%*:|"<>#\s]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "untitled";
+      }
+    });
+    fmSlug.addEventListener("input", () => { fmSlug.dataset.manual = "1"; });
+
+    // ---- Auto-save draft ----
+    function saveDraftObj() {
+      return { title: fmTitle.value, date: fmDate.value, slug: fmSlug.value, desc: fmDesc.value, tags: fmTags.value, body: editor.value };
+    }
+    function autoSave() { localStorage.setItem("blog-draft", JSON.stringify(saveDraftObj())); }
+    [fmTitle, fmDate, fmSlug, fmDesc, fmTags].forEach(el => el.addEventListener("input", autoSave));
+
+    // ---- Build full markdown ----
+    function buildFull() {
+      const tags = fmTags.value.split(/[,，]/).map(t => t.trim()).filter(Boolean);
+      const tagsStr = tags.length ? `[${tags.join(", ")}]` : "[]";
+      return [
+        "---",
+        `title: ${fmTitle.value || "无标题"}`,
+        `date: ${fmDate.value || new Date().toISOString().slice(0, 10)}`,
+        fmDesc.value ? `description: ${fmDesc.value}` : null,
+        `tags: ${tagsStr}`,
+        "---",
+        "", editor.value,
+      ].filter(l => l !== null).join("\n");
+    }
+
+    // ---- Toast ----
+    function showToast(msg, isError) {
+      toast.textContent = msg;
+      toast.className = "toast show" + (isError ? " error" : "");
+      setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    // ---- Button actions ----
+    $("btn-copy").onclick = () =>
+      navigator.clipboard.writeText(buildFull()).then(
+        () => showToast("已复制到剪贴板"),
+        () => showToast("复制失败", true)
+      );
+
+    $("btn-download").onclick = () => {
+      const blob = new Blob([buildFull()], { type: "text/markdown" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${fmSlug.value || "untitled"}.md`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast("已下载 .md 文件");
+    };
+
+    $("btn-clear").onclick = () => {
+      if (!confirm("确定要清空吗？草稿也会被删除。")) return;
+      fmTitle.value = fmDesc.value = fmTags.value = editor.value = fmSlug.value = "";
+      fmSlug.dataset.manual = "";
+      fmDate.value = new Date().toISOString().slice(0, 10);
+      preview.innerHTML = '<div class="placeholder">在左边写 Markdown，这里实时预览</div>';
+      localStorage.removeItem("blog-draft");
+    };
+
+    $("btn-draft").onclick = () => {
+      const raw = localStorage.getItem("blog-draft");
+      if (!raw) { showToast("没有保存的草稿"); return; }
+      const d = JSON.parse(raw);
+      if (d.title) fmTitle.value = d.title;
+      if (d.date) fmDate.value = d.date;
+      if (d.slug) { fmSlug.value = d.slug; fmSlug.dataset.manual = "1"; }
+      if (d.desc) fmDesc.value = d.desc;
+      if (d.tags) fmTags.value = d.tags;
+      if (d.body) { editor.value = d.body; preview.innerHTML = marked.parse(d.body); }
+      showToast("草稿已恢复");
+    };
+
+    // ---- Publish to GitHub ----
+    $("btn-publish").onclick = async () => {
+      const owner = $("gh-owner").value.trim();
+      const repo = $("gh-repo").value.trim();
+      const branch = $("gh-branch").value.trim();
+      const token = $("gh-token").value.trim();
+
+      if (!owner || !repo || !branch || !token) {
+        showToast("请先填写 GitHub 设置（点击上方 ⚙）", true);
+        $("settings-panel").classList.add("open");
+        return;
+      }
+      if (!fmTitle.value.trim() || !editor.value.trim()) {
+        showToast("标题和正文不能为空", true);
+        return;
+      }
+
+      const slug = fmSlug.value || "untitled";
+      const path = `src/content/posts/${slug}.md`;
+      const content = buildFull();
+      const btn = $("btn-publish");
+      btn.disabled = true;
+      btn.textContent = "发布中...";
+
+      try {
+        // Check if file already exists
+        let sha = null;
+        const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+        const getRes = await fetch(getUrl, { headers: { Authorization: `token ${token}` } });
+        if (getRes.ok) {
+          const data = await getRes.json();
+          sha = data.sha;
+          if (!confirm(`文件 "${path}" 已存在，是否覆盖？`)) { btn.disabled = false; btn.textContent = "发布到 GitHub"; return; }
+        }
+
+        // Create or update file
+        const body = {
+          message: `发布文章：${fmTitle.value}`,
+          content: btoa(unescape(encodeURIComponent(content))),
+          branch,
+        };
+        if (sha) body.sha = sha;
+
+        const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+          method: "PUT",
+          headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (putRes.ok) {
+          showToast("发布成功！稍后 GitHub Pages 会自动部署。");
+          autoSave(); // save final state
+        } else {
+          const err = await putRes.json();
+          showToast(`发布失败：${err.message}`, true);
+        }
+      } catch (e) {
+        showToast(`网络错误：${e.message}`, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "发布到 GitHub";
+      }
+    };
+
+    // ---- Auto-restore draft ----
+    (() => {
+      const raw = localStorage.getItem("blog-draft");
+      if (!raw) return;
+      try {
+        const d = JSON.parse(raw);
+        if (d.title) fmTitle.value = d.title;
+        if (d.date) fmDate.value = d.date;
+        if (d.slug) { fmSlug.value = d.slug; fmSlug.dataset.manual = "1"; }
+        if (d.desc) fmDesc.value = d.desc;
+        if (d.tags) fmTags.value = d.tags;
+        if (d.body) { editor.value = d.body; preview.innerHTML = marked.parse(d.body); }
+      } catch (_) {}
+    })();
+  </script>
+</BaseLayout>

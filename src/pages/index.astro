@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const posts = await getCollection("posts");
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="文章">
+  <section>
+    {posts.length > 0 ? (
+      <div>
+        {posts.map((post) => (
+          <a href={`/posts/${post.id}/`} class="post-card">
+            <div class="post-card-date">
+              {post.data.date.toLocaleDateString("zh-CN", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </div>
+            <div class="post-card-title">{post.data.title}</div>
+            {post.data.description && (
+              <div class="post-card-desc">{post.data.description}</div>
+            )}
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div style="margin-top:0.4rem">
+                {post.data.tags.map((tag: string) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )}
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div style="text-align:center; padding:3rem 0; color:var(--kogane);">
+        <p>还没有文章。</p>
+        <p style="font-size:0.85rem;">等待第一篇文章的到来。</p>
+      </div>
+    )}
+  </section>
+</BaseLayout>

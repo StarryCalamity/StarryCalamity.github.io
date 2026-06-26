@@ -1,0 +1,36 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = await getCollection("projects");
+projects.sort((a, b) => (b.data.order ?? 0) - (a.data.order ?? 0));
+---
+
+<BaseLayout title="项目" description="做过的项目">
+  <h1 class="page-title">项目</h1>
+
+  {projects.length > 0 ? (
+    <div class="project-grid">
+      {projects.map((p) => (
+        <a href={`/projects/${p.id}/`} class="project-card">
+          <div class="project-card-title">{p.data.title}</div>
+          {p.data.description && (
+            <div class="project-card-desc">{p.data.description}</div>
+          )}
+          {p.data.tags && p.data.tags.length > 0 && (
+            <div>
+              {p.data.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div style="text-align:center; padding:3rem 0; color:var(--kogane);">
+      <p>还没有作品。</p>
+      <p style="font-size:0.85rem;">期待将来这里会放满作品。</p>
+    </div>
+  )}
+</BaseLayout>

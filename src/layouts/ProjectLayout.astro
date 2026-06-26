@@ -1,0 +1,31 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+const { frontmatter } = Astro.props;
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+  <article>
+    <header class="article-header">
+      <h1 class="article-title">{frontmatter.title}</h1>
+      {frontmatter.description && (
+        <p style="color:var(--sumi-light); font-size:0.95rem;">{frontmatter.description}</p>
+      )}
+      {frontmatter.tags && frontmatter.tags.length > 0 && (
+        <div style="margin-top:0.6rem">
+          {frontmatter.tags.map((tag: string) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <div class="article-body">
+      <slot />
+    </div>
+  </article>
+
+  <div style="margin-top:3rem; text-align:center;">
+    <a href="/projects" class="back-link">← 作品一覧に戻る</a>
+  </div>
+</BaseLayout>
