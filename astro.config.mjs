@@ -1,6 +1,6 @@
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  site: "https://starryclamity.github.io",
+  site: "https://starrycalamity.github.io",
   base: "/",
 });
