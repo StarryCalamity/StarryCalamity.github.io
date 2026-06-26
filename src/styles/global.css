@@ -1,16 +1,21 @@
-/* ===== 配色 ===== */
+/* ===== 配色（亮色） ===== */
 :root {
-  --washi: #F5F0E8;       /* 宣纸色 */
-  --washi-dark: #E8E0D3;  /* 宣纸深 */
-  --sumi: #2C2416;         /* 墨色 */
-  --sumi-light: #5C5040;  /* 淡墨 */
-  --shu: #B22222;          /* 朱红 */
-  --shu-light: #D44545;   /* 淡朱 */
-  --kogane: #9E7B56;       /* 金色 */
-  --sakura: #D4C5A9;       /* 灰樱 */
-  --kuchiba: #C4A265;       /* 朽叶 */
-  --border: #D0C8B8;       /* 边线 */
+  --washi: #F5F0E8;
+  --washi-dark: #E8E0D3;
+  --sumi: #2C2416;
+  --sumi-light: #5C5040;
+  --shu: #B22222;
+  --shu-light: #D44545;
+  --kogane: #9E7B56;
+  --sakura: #D4C5A9;
+  --kuchiba: #C4A265;
+  --border: #D0C8B8;
   --shadow: rgba(44, 36, 22, 0.06);
+  --card-bg: #fff;
+  --pre-bg: #2C2416;
+  --pre-fg: #E8DCC8;
+  --body-bg: var(--washi);
+  --texture-opacity: 0.03;
 
   --font-serif: "Noto Serif SC", "Source Han Serif SC", "SimSun", "STSong", serif;
   --font-sans: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
@@ -18,6 +23,51 @@
 
   --max-width: 720px;
   --radius: 6px;
+}
+
+/* ===== 暗色模式 ===== */
+[data-theme="dark"] {
+  --washi: #1a1814;
+  --washi-dark: #252320;
+  --sumi: #ddd6c8;
+  --sumi-light: #a09888;
+  --shu: #e05555;
+  --shu-light: #ff7070;
+  --kogane: #b89855;
+  --sakura: #6b6050;
+  --kuchiba: #8a7545;
+  --border: #3a3530;
+  --shadow: rgba(0, 0, 0, 0.20);
+  --card-bg: #1e1c18;
+  --pre-bg: #0d0c0a;
+  --pre-fg: #ddd6c8;
+  --texture-opacity: 0.08;
+}
+
+/* ===== 系统暗色自动跟随 ===== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --washi: #1a1814;
+    --washi-dark: #252320;
+    --sumi: #ddd6c8;
+    --sumi-light: #a09888;
+    --shu: #e05555;
+    --shu-light: #ff7070;
+    --kogane: #b89855;
+    --sakura: #6b6050;
+    --kuchiba: #8a7545;
+    --border: #3a3530;
+    --shadow: rgba(0, 0, 0, 0.20);
+    --card-bg: #1e1c18;
+    --pre-bg: #0d0c0a;
+    --pre-fg: #ddd6c8;
+    --texture-opacity: 0.08;
+  }
+}
+
+/* ===== 主题切换过渡 ===== */
+body {
+  transition: background-color 0.4s, color 0.4s;
 }
 
 /* ===== リセット ===== */
@@ -41,13 +91,13 @@ body {
   min-height: 100vh;
 }
 
-/* ===== 和紙の質感 ===== */
+/* ===== 纹理 ===== */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  opacity: 0.03;
+  opacity: var(--texture-opacity);
   background-image:
     repeating-linear-gradient(
       0deg,
@@ -59,7 +109,7 @@ body::before {
   pointer-events: none;
 }
 
-/* ===== タイポグラフィ ===== */
+/* ===== 排版 ===== */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 600;
@@ -79,19 +129,46 @@ a {
 }
 a:hover { color: var(--shu-light); }
 
-/* ===== レイアウト ===== */
+/* ===== 主题切换按钮 ===== */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1.2rem;
+  z-index: 99;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kogane);
+  transition: all 0.3s;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  border-color: var(--shu);
+  color: var(--shu);
+  transform: rotate(15deg);
+}
+
+/* ===== 布局 ===== */
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* ===== ヘッダー ===== */
+/* ===== 头部 ===== */
 .site-header {
   padding: 2.5rem 0 1.5rem;
   text-align: center;
   border-bottom: 1px solid var(--border);
   margin-bottom: 2.5rem;
+  animation: fadeDown 0.6s ease-out;
 }
 
 .site-title {
@@ -102,9 +179,7 @@ a:hover { color: var(--shu-light); }
   color: var(--sumi);
   margin-bottom: 0.25rem;
 }
-.site-title a {
-  color: inherit;
-}
+.site-title a { color: inherit; }
 
 .site-subtitle {
   font-family: var(--font-serif);
@@ -134,7 +209,7 @@ a:hover { color: var(--shu-light); }
   height: 1px;
   background: var(--shu);
   transform: scaleX(0);
-  transition: transform 0.25s;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: right;
 }
 .site-nav a:hover::after,
@@ -142,11 +217,9 @@ a:hover { color: var(--shu-light); }
   transform: scaleX(1);
   transform-origin: left;
 }
-.site-nav a.active {
-  color: var(--shu);
-}
+.site-nav a.active { color: var(--shu); }
 
-/* ===== フッター ===== */
+/* ===== 底部 ===== */
 .site-footer {
   margin-top: 4rem;
   padding: 1.5rem 0;
@@ -157,20 +230,20 @@ a:hover { color: var(--shu-light); }
   letter-spacing: 0.03em;
 }
 
-/* ===== 記事カード ===== */
+/* ===== 文章卡片 ===== */
 .post-card {
   display: block;
-  padding: 1.4rem 0;
+  padding: 1.3rem 0.8rem;
+  margin: 0 -0.8rem;
   border-bottom: 1px dashed var(--border);
-  transition: background 0.2s;
+  border-radius: var(--radius);
+  transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
 }
-.post-card:first-of-type {
-  border-top: 1px dashed var(--border);
-}
+.post-card:first-of-type { border-top: 1px dashed var(--border); }
 .post-card:hover {
-  background: var(--shadow);
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  background: var(--card-bg);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .post-card-date {
@@ -186,7 +259,9 @@ a:hover { color: var(--shu-light); }
   font-weight: 600;
   color: var(--sumi);
   margin-bottom: 0.3rem;
+  transition: color 0.2s;
 }
+.post-card:hover .post-card-title { color: var(--shu); }
 
 .post-card-desc {
   font-size: 0.9rem;
@@ -194,7 +269,7 @@ a:hover { color: var(--shu-light); }
   line-height: 1.6;
 }
 
-/* ===== タグ ===== */
+/* ===== 标签 ===== */
 .tag {
   display: inline-block;
   font-size: 0.72rem;
@@ -204,14 +279,15 @@ a:hover { color: var(--shu-light); }
   border-radius: 3px;
   color: var(--kogane);
   letter-spacing: 0.02em;
-  transition: all 0.2s;
+  transition: all 0.25s;
 }
 .tag:hover {
   border-color: var(--shu);
   color: var(--shu);
+  transform: translateY(-1px);
 }
 
-/* ===== 記事本文 ===== */
+/* ===== 文章正文 ===== */
 .article-header {
   text-align: center;
   margin-bottom: 2.5rem;
@@ -245,18 +321,14 @@ a:hover { color: var(--shu-light); }
   margin-bottom: 0.4em;
 }
 
-.article-body p {
-  margin-bottom: 1.2em;
-}
+.article-body p { margin-bottom: 1.2em; }
 
 .article-body ul, .article-body ol {
   padding-left: 1.4em;
   margin-bottom: 1.2em;
 }
 
-.article-body li {
-  margin-bottom: 0.3em;
-}
+.article-body li { margin-bottom: 0.3em; }
 
 .article-body blockquote {
   margin: 1.5em 0;
@@ -264,7 +336,6 @@ a:hover { color: var(--shu-light); }
   border-left: 3px solid var(--shu);
   background: var(--washi-dark);
   color: var(--sumi-light);
-  font-style: italic;
 }
 
 .article-body code {
@@ -279,8 +350,8 @@ a:hover { color: var(--shu-light); }
 .article-body pre {
   margin: 1.5em 0;
   padding: 1em 1.2em;
-  background: var(--sumi);
-  color: #E8DCC8;
+  background: var(--pre-bg);
+  color: var(--pre-fg);
   border-radius: var(--radius);
   overflow-x: auto;
   font-size: 0.85rem;
@@ -310,7 +381,7 @@ a:hover { color: var(--shu-light); }
   font-size: 1.2rem;
 }
 
-/* ===== セクション見出し ===== */
+/* ===== 区块标题 ===== */
 .section-heading {
   font-family: var(--font-serif);
   font-size: 1.1rem;
@@ -323,7 +394,7 @@ a:hover { color: var(--shu-light); }
   display: inline-block;
 }
 
-/* ===== 作品グリッド ===== */
+/* ===== 项目卡片 ===== */
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -332,15 +403,17 @@ a:hover { color: var(--shu-light); }
 }
 
 .project-card {
+  display: block;
   padding: 1.2rem;
-  background: white;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: box-shadow 0.25s, transform 0.2s;
+  transition: box-shadow 0.3s, transform 0.25s, border-color 0.25s;
 }
 .project-card:hover {
-  box-shadow: 0 4px 16px var(--shadow);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow);
+  transform: translateY(-3px);
+  border-color: var(--shu);
 }
 
 .project-card-title {
@@ -358,7 +431,7 @@ a:hover { color: var(--shu-light); }
   margin-bottom: 0.6rem;
 }
 
-/* ===== ユーティリティ ===== */
+/* ===== 工具类 ===== */
 .page-title {
   text-align: center;
   font-family: var(--font-serif);
@@ -374,15 +447,51 @@ a:hover { color: var(--shu-light); }
   color: var(--kogane);
   margin-bottom: 1.5rem;
   letter-spacing: 0.03em;
+  transition: color 0.2s, transform 0.2s;
 }
 .back-link:hover {
   color: var(--shu);
+  transform: translateX(-3px);
 }
 
-/* ===== レスポンシブ ===== */
+/* ===== 滚动动画 ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 卡片逐次延迟 */
+.reveal:nth-child(1) { transition-delay: 0.05s; }
+.reveal:nth-child(2) { transition-delay: 0.10s; }
+.reveal:nth-child(3) { transition-delay: 0.15s; }
+.reveal:nth-child(4) { transition-delay: 0.20s; }
+.reveal:nth-child(5) { transition-delay: 0.25s; }
+.reveal:nth-child(6) { transition-delay: 0.30s; }
+
+/* ===== 页面加载动画 ===== */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+main.container {
+  animation: fadeUp 0.5s ease-out;
+}
+
+/* ===== 响应式 ===== */
 @media (max-width: 600px) {
   html { font-size: 15px; }
   .container { padding: 0 1rem; }
   .site-nav { gap: 1.2rem; }
   .project-grid { grid-template-columns: 1fr; }
+  .theme-toggle { top: 0.5rem; right: 0.5rem; width: 1.8rem; height: 1.8rem; font-size: 0.85rem; }
 }
