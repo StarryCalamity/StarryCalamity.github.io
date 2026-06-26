@@ -30,13 +30,11 @@ const pageTitle = description ? `${title} — ${description}` : title;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <script is:inline>
-      // 立即执行，防止闪烁
       (function () {
-        const saved = localStorage.getItem("theme");
+        var cls = document.documentElement.classList;
+        var saved = localStorage.getItem("theme");
         if (saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-          document.documentElement.setAttribute("data-theme", "dark");
-        } else if (saved === "light") {
-          document.documentElement.setAttribute("data-theme", "light");
+          cls.add("dark");
         }
       })();
     </script>
@@ -78,32 +76,30 @@ const pageTitle = description ? `${title} — ${description}` : title;
 
     <script>
       // ---- 主题切换 ----
-      const toggle = document.getElementById("theme-toggle");
-      const icon = document.getElementById("theme-icon");
-      const html = document.documentElement;
+      var toggle = document.getElementById("theme-toggle");
+      var icon = document.getElementById("theme-icon");
+      var html = document.documentElement;
 
       function getTheme() {
-        const saved = localStorage.getItem("theme");
+        var saved = localStorage.getItem("theme");
         if (saved) return saved;
         return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       }
 
       function applyTheme(t) {
         if (t === "dark") {
-          html.setAttribute("data-theme", "dark");
-          html.removeAttribute("data-theme", "light");
+          html.classList.add("dark");
           icon.textContent = "◑";
         } else {
-          html.setAttribute("data-theme", "light");
-          html.removeAttribute("data-theme", "dark");
+          html.classList.remove("dark");
           icon.textContent = "◐";
         }
       }
 
       applyTheme(getTheme());
 
-      toggle.addEventListener("click", () => {
-        const next = getTheme() === "dark" ? "light" : "dark";
+      toggle.addEventListener("click", function () {
+        var next = getTheme() === "dark" ? "light" : "dark";
         localStorage.setItem("theme", next);
         applyTheme(next);
       });
@@ -166,7 +162,7 @@ const pageTitle = description ? `${title} — ${description}` : title;
         function tick() {
           dotX += (mouseX - dotX) * 0.35;
           dotY += (mouseY - dotY) * 0.35;
-          dot.style.transform = "translate(" + (dotX - 6) + "px, " + (dotY - 6) + "px)";
+          dot.style.transform = "translate(" + (dotX - 2) + "px, " + (dotY - 2) + "px)";
 
           ringX += (mouseX - ringX) * 0.15;
           ringY += (mouseY - ringY) * 0.15;
