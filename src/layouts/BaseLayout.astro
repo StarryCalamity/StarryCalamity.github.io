@@ -43,6 +43,10 @@ const pageTitle = description ? `${title} — ${description}` : title;
   </head>
 
   <body>
+    <!-- HimeHina 自定义光标 -->
+    <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
+    <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
+
     <!-- 暗色模式切换按钮 -->
     <button class="theme-toggle" id="theme-toggle" aria-label="切换暗色模式" title="切换暗色模式">
       <span id="theme-icon">◐</span>
@@ -121,6 +125,54 @@ const pageTitle = description ? `${title} — ${description}` : title;
         el.classList.add("reveal");
         observer.observe(el);
       });
+
+      // ---- HimeHina 红蓝渐变光标 ----
+      (function () {
+        // 触屏设备不用自定义光标
+        if ("ontouchstart" in window || navigator.maxTouchPoints > 0) return;
+
+        document.documentElement.classList.add("custom-cursor");
+
+        const dot = document.getElementById("cursor-dot");
+        const ring = document.getElementById("cursor-ring");
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let dotX = mouseX, dotY = mouseY;
+        let ringX = mouseX, ringY = mouseY;
+
+        document.addEventListener("mousemove", (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        });
+
+        // 检测可交互元素
+        const interactives = "a, button, input, textarea, [role='button'], .theme-toggle, .post-card, .project-card, .tag";
+        document.addEventListener("mouseover", (e) => {
+          const target = e.target.closest(interactives);
+          if (target) { dot.classList.add("hover"); ring.classList.add("hover"); }
+        });
+        document.addEventListener("mouseout", (e) => {
+          const target = e.target.closest(interactives);
+          if (target) { dot.classList.remove("hover"); ring.classList.remove("hover"); }
+        });
+
+        function animate() {
+          // dot 紧跟鼠标 (快速 lerp)
+          dotX += (mouseX - dotX) * 0.35;
+          dotY += (mouseY - dotY) * 0.35;
+          dot.style.left = dotX + "px";
+          dot.style.top = dotY + "px";
+
+          // ring 慢半拍 (慢速 lerp)，形成拖尾
+          ringX += (mouseX - ringX) * 0.15;
+          ringY += (mouseY - ringY) * 0.15;
+          ring.style.left = ringX + "px";
+          ring.style.top = ringY + "px";
+
+          requestAnimationFrame(animate);
+        }
+        animate();
+      })();
     </script>
   </body>
 </html>

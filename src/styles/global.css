@@ -70,6 +70,66 @@ body {
   transition: background-color 0.4s, color 0.4s;
 }
 
+/* HimeHina 主题色 */
+:root {
+  --hh-hime: #FD5F8A;
+  --hh-hina: #3EB8FD;
+  --hh-gradient: linear-gradient(135deg, var(--hh-hime), var(--hh-hina));
+}
+
+/* ===== 自定义光标 ===== */
+html.custom-cursor,
+html.custom-cursor * {
+  cursor: none !important;
+}
+html.custom-cursor a,
+html.custom-cursor button,
+html.custom-cursor input,
+html.custom-cursor textarea,
+html.custom-cursor [role="button"] {
+  cursor: none !important;
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--hh-gradient);
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s, height 0.25s, box-shadow 0.25s;
+}
+.cursor-dot.hover {
+  width: 28px;
+  height: 28px;
+  box-shadow: 0 0 16px rgba(253, 95, 138, 0.5),
+              0 0 32px rgba(62, 184, 253, 0.3);
+}
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--hh-hina);
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  transition: width 0.25s, height 0.25s, border-color 0.25s, opacity 0.25s;
+}
+.cursor-ring.hover {
+  width: 44px;
+  height: 44px;
+  border-color: var(--hh-hime);
+  opacity: 0.8;
+}
+
 /* ===== リセット ===== */
 *, *::before, *::after {
   box-sizing: border-box;
