@@ -126,52 +126,55 @@ const pageTitle = description ? `${title} — ${description}` : title;
         observer.observe(el);
       });
 
-      // ---- HimeHina 红蓝渐变光标 ----
+    </script>
+
+    <!-- HimeHina 光标（独立脚本，不走 Astro 打包） -->
+    <script is:inline>
       (function () {
-        // 触屏设备不用自定义光标
-        if ("ontouchstart" in window || navigator.maxTouchPoints > 0) return;
+        if ("ontouchstart" in window) return;
+
+        var dot = document.getElementById("cursor-dot");
+        var ring = document.getElementById("cursor-ring");
+        if (!dot || !ring) return;
 
         document.documentElement.classList.add("custom-cursor");
 
-        const dot = document.getElementById("cursor-dot");
-        const ring = document.getElementById("cursor-ring");
-        let mouseX = window.innerWidth / 2;
-        let mouseY = window.innerHeight / 2;
-        let dotX = mouseX, dotY = mouseY;
-        let ringX = mouseX, ringY = mouseY;
+        var mouseX = window.innerWidth / 2;
+        var mouseY = window.innerHeight / 2;
+        var dotX = mouseX, dotY = mouseY;
+        var ringX = mouseX, ringY = mouseY;
 
-        document.addEventListener("mousemove", (e) => {
+        window.addEventListener("mousemove", function (e) {
           mouseX = e.clientX;
           mouseY = e.clientY;
         });
 
-        // 检测可交互元素
-        const interactives = "a, button, input, textarea, [role='button'], .theme-toggle, .post-card, .project-card, .tag";
-        document.addEventListener("mouseover", (e) => {
-          const target = e.target.closest(interactives);
-          if (target) { dot.classList.add("hover"); ring.classList.add("hover"); }
+        var clicks = "a, button, input, textarea, [role=button], .theme-toggle, .post-card, .project-card, .tag";
+        document.addEventListener("mouseover", function (e) {
+          if (e.target.closest(clicks)) {
+            dot.classList.add("hover");
+            ring.classList.add("hover");
+          }
         });
-        document.addEventListener("mouseout", (e) => {
-          const target = e.target.closest(interactives);
-          if (target) { dot.classList.remove("hover"); ring.classList.remove("hover"); }
+        document.addEventListener("mouseout", function (e) {
+          if (e.target.closest(clicks)) {
+            dot.classList.remove("hover");
+            ring.classList.remove("hover");
+          }
         });
 
-        function animate() {
-          // dot 紧跟鼠标 (快速 lerp)
+        function tick() {
           dotX += (mouseX - dotX) * 0.35;
           dotY += (mouseY - dotY) * 0.35;
-          dot.style.left = dotX + "px";
-          dot.style.top = dotY + "px";
+          dot.style.transform = "translate(" + (dotX - 6) + "px, " + (dotY - 6) + "px)";
 
-          // ring 慢半拍 (慢速 lerp)，形成拖尾
           ringX += (mouseX - ringX) * 0.15;
           ringY += (mouseY - ringY) * 0.15;
-          ring.style.left = ringX + "px";
-          ring.style.top = ringY + "px";
+          ring.style.transform = "translate(" + (ringX - 16) + "px, " + (ringY - 16) + "px)";
 
-          requestAnimationFrame(animate);
+          requestAnimationFrame(tick);
         }
-        animate();
+        tick();
       })();
     </script>
   </body>
